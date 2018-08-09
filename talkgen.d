@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* swash-tentative status: TENTATIVE */
 
 // Defines functions and structures related to random dialogue generation
 

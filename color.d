@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* swash-tentative status: ACTIVE */
 
 // Defines aliases for colors that can be used by the curses or SDL interfaces
 
