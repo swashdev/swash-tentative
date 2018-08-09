@@ -42,22 +42,18 @@ string[] what_is( char index )
 void symbol_is( char index, string definition )
 {
   // First check if the given index is already in the library
-  string* d = (index in Symbol_library)
-
-  // If not, we add a new index and set the definition to an array containing
-  // only `definition'
-  if( d == null )
+  if( (index in Symbol_library) == null )
   {
+    // If not, we add a new index and set the definition to an array
+    // containing only `definition'
     Symbol_library[index] = [definition];
   }
   // If the index _is_ present, we have to check if the given definition is
   // already present in the library.
   else
   {
-    d = (definition in Symbol_library[index]);
-
     // If it is not present, we'll append `definition' to the array.
-    if( d == null )
+    if( (definition in Symbol_library[index]) == null )
     {
       Symbol_library[index] ~= definition;
     }
@@ -74,18 +70,12 @@ void symbol_is_not( char index, string definition )
       // Determine the index that the definition is at and overwrite that
       // definition with the next in line:
       int index_of = -1, num_found = 0;
-      foreach( i; 0 .. Symbol_library.length )
-      {
-        if( Symbol_library[i] == definition )
-        { index_of = i;
-        }
-        if( index_of > -1 && index_of < i )
-        {
-          Symbol_library[i - 1] = Symbol_library[i];
-        }
+      foreach( i; (definition in Symbol_library[index]
+                  .. Symbol_library[index].length - 1 )
+      { Symbol_library[index][i] = Symbol_library[index][i + 1];
       }
       // Truncate the library's length:
-      Symbol_library[index].length -= num_found;
-    } // if( (definition in Symbol_library[index]) != null )
-  } // if( (index in Symbol_library) != null )
+      Symbol_library[index].length--;
+    }
+  }
 } // void symbol_is_not( char, string )
