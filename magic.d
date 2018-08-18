@@ -74,8 +74,215 @@ struct Spell
 ubyte calc_spell_chance( uint effect, uint target, uint magnitude,
                          uint duration )
 {
-  /* TODO */
-  return 100;
+  // XXX: The numbers here are essentially placeholders and require testing
+  // for balance.
+  uint base_chance = 50;
+
+  if( target !in [TARGET_AT_SELF, SHIELD, WARD] )
+  { base_chance -= 20;
+  }
+  if( target >= AREA_EFFECT )
+  {
+    if( base_chance > (1 + (target - AREA_EFFECT)) )
+    { base_chance -= 1 + (target - AREA_EFFECT);
+    }
+    else
+    {
+      base_chance = 1;
+      goto adjust_base_chance;
+    }
+  }
+
+  if( base_chance == 0 )
+  { goto adjust_base_chance;
+  }
+
+  if( base_chance < magnitude )
+  {
+    base_chance = 1;
+    goto adjust_base_chance;
+  }
+
+  if( magnitude > 40 )
+  { base_chance -= 40;
+  }
+  else
+  { base_chance -= magnitude;
+  }
+
+  if( base_chance == 0 )
+  { goto adjust_base_chance;
+  }
+
+  if( base_chance > duration )
+  { base_chance -= duration;
+  }
+  else
+  { base_chance = 1;
+  }
+
+adjust_base_chance:
+  if( base_chance == 0 )
+  { base_chance = 1;
+  }
+
+  if( base_chance < 100 )
+  { base_chance *= 10;
+  }
+
+  // Switch Statement From Hell divides the base chance by a certain number
+  // based on what effect specifically is being used:
+  switch( effect )
+  {
+    default:
+      return 0;
+
+    // Healing magic effects
+
+    case RESTORE_STAMINA:
+    case PROTECTION:
+      // These effects have no special base chance, always give them the max
+      // of the above-calculated number.
+      return base_chance;
+
+    case RESTORE_HEALTH:
+      base_chance *= 0.9;
+      break;
+
+    case CURE_POISON:
+      base_chance *= 0.8;
+      break;
+
+    case CURE_DISEASE:
+      base_chance *= 0.6;
+      break;
+
+    case REMOVE_CURSE:
+      base_chance *= 0.65;
+      break;
+
+    case CURE_PARALYSIS:
+      base_chance *= 0.75;
+      break;
+
+    // Thaumaturgy magic
+
+    case WATER_WALKING:
+      base_chance *= 0.75;
+      break;
+
+    case WATER_BREATHING:
+      base_chance *= 0.5;
+      break;
+
+    case LEVITATE:
+      base_chance *= 0.7;
+      break;
+
+    case DISENTANGLE:
+      base_chance *= 0.8;
+      break;
+
+    case INVISIBILITY:
+      base_chance *= 0.4;
+      break;
+
+    case TURN_UNDEAD:
+      base_chance *= 0.35;
+      break;
+
+    case BANISH_UNDEAD:
+      base_chance *= 0.25;
+      break;
+
+    case BANISH_DEMON:
+      base_chance *= 0.15;
+      break;
+
+    case SUMMON_FAMILIAR:
+      base_chance *= 0.6;
+      break;
+
+    case TELEKINESIS:
+      base_chance *= 0.7;
+      break;
+
+    case IDENTIFY_ITEM:
+    case WISH_FOR_ITEM:
+      base_chance *= 0.1;
+      break;
+
+    // Offensive magic effects
+
+    case WIND:
+      return base_chance;
+
+    case FIRE:
+    case ICE:
+      base_chance *= 0.9;
+      break;
+
+    case THUNDER:
+      base_chance *= 0.8;
+      break;
+
+    case VENOM:
+    case ACID:
+      base_chance *= 0.75;
+      break;
+
+    case THORNS:
+      base_chance *= 0.6;
+      break;
+
+    case NECROTIZE:
+      base_chance *= 0.4;
+      break;
+
+    case PARALYZE:
+      base_chance *= 0.75;
+      break;
+
+    case BLIND:
+      base_chance *= 0.5;
+      break;
+
+    // Charm magic effects
+
+    case PACIFY:
+      base_chance *= 0.5;
+      break;
+
+    case ENCOURAGE:
+      base_chance *= 0.65;
+      break;
+
+    case ENRAGE:
+      base_chance *= 0.4;
+      break;
+
+    case BETRAY:
+      base_chance *= 0.25;
+      break;
+
+    case FEAR:
+      base_chance *= 0.3;
+      break;
+
+    case HYPNOTIZE:
+      base_chance *= 0.1;
+      break;
+  }
+
+  if( base_chance > 100 )
+  { return 100;
+  }
+
+  if( base_chance == 0 )
+  { return 1;
+  }
+
+  return base_chance;
 }
 
 // Calcs the cost in spell points for the given spell based on its base
@@ -83,8 +290,41 @@ ubyte calc_spell_chance( uint effect, uint target, uint magnitude,
 uint calc_spell_cost( uint effect, uint target, uint magnitude,
                       uint duration )
 {
-  /* TODO */
-  return 0;
+  // XXX: The numbers here are essentially placeholders and require testing
+  // for balance.
+  uint base_cost = 1;
+
+  if( target !in [TARGET_AT_SELF, SHIELD, TOUCH] )
+  {
+    if( target >= AREA_EFFECT )
+    { base_cost = (1 + target - AREA_EFFECT) * 10;
+    }
+    else
+    { base_cost = 10;
+    }
+  }
+  else if( target == TOUCH && (effect & OFFENSIVE_EFFECT) )
+  { base_cost = 5;
+  }
+  else if( target == SHIELD && effect != PROTECTION )
+  {
+    if( !(effect & OFFENSIVE_EFFECT) )
+    { base_cost = 20;
+    }
+    else if( effect == THUNDER )
+    { base_cost = 7;
+    }
+    else if( effect == THORNS )
+    { base_cost = 10;
+    }
+    else
+    { base_cost = 5;
+    }
+  }
+
+  base_cost *= (magnitude + duration);
+
+  return base_cost;
 }
 
 Spell new_spell( uint effect, uint target, uint magnitude, uint duration )
