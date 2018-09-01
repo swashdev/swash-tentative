@@ -54,8 +54,8 @@ class Body
   item held = No_item;
 
   /// A pointer to an array of body parts, such as head, tail, or limbs.
-  /// A `null` pointer indicates that no further body parts branch out from
-  /// this one, or that such body parts have been severed.
+  /// An empty array indicates that no further body parts branch out from
+  /// this one; a null pointer in the array indicates a severed body part.
   Body* limbs[];
 
   /++
@@ -89,19 +89,19 @@ class Body
 
     foreach( c; 0 .. limbs.length )
     {
-      if( c == null )  continue;
+      if( limbs[c] == null )  continue;
 
-      if( c.name == name )
+      if( limbs[c].name == name )
       {
-        if( c.vital )  ret |= 0x2;
+        if( limbs[c].vital )  ret |= 0x2;
 
-        c = null;
+        limbs[c] = null;
         ret |= 0x1;
 
         return ret;
       }
 
-      ret = c.sever_limb( name );
+      ret = limbs[c].sever_limb( name );
 
       if( ret != 0x0 )  return ret;
     } // foreach( c; 0 .. limbs.length )
