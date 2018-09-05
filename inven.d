@@ -24,8 +24,8 @@ import global;
  + A struct for inventory items
  +
  + This is a simple struct used to represent an item in the inventory.
- + Actually all it is is an Item followed by a counter representing how many
- + items are in the given Stack.
+ + Actually all it is is an `Item` followed by a counter representing how many
+ + of that Item are in the given Stack.
  +
  + Date:  2018-09-05
  +/
@@ -38,9 +38,9 @@ struct Stack
 /++
  + The inventory
  +
- + This struct defines an inventory.  It contains an array of 40 `items` (14
- + for equipment slots followed by 26 more for a "bag"), and the number of
- + `coins` in the inventory.
+ + This struct defines an inventory.  It contains an array of 40 `Stack`s of
+ + `items` (14 for equipment slots followed by 26 more for a "bag"), and the
+ + number of `coins` in the inventory.
  +
  + Date:  2018-09-05
  +/
@@ -146,4 +146,132 @@ bool check_equip( Item i, uint s )
   }
 }
 
-void get_inv_slot_name( string* nam, char* ch, ubyte slot );
+/++
+ + Gets an item out of the given slot in the inventory
+ +
+ + This function gets a given `Item` from the given `Inven` without
+ + modifying the contents of the `Inven`.
+ +
+ + This can be used for verifying what item is equipped in a given equipment
+ + slot or what items are in the inventory, but is not useful if a monster
+ + wants to drop or otherwise remove an item.
+ +
+ + Date:  2018-09-05
+ +
+ + See_Also:
+ +   <a href="#get_stack">get_stack</a>,
+ +   <a href="#pop_item">pop_item</a>,
+ +   <a href="#pop_stack">pop_stack</a>
+ +
+ + Returns:
+ +   An `Item` from `tory.items[index].i`
+ +/
+Item get_item( Inven tory, uint index )
+{ return tory.items[index].i;
+}
+
+/++
+ + Gets a stack of items out of the given slot in the inventory
+ +
+ + This function gets a given `Stack` from the given `Inven` without
+ + modifying the contents of the `Inven`.
+ +
+ + This can be used for verifying what item is equipped in a given equipment
+ + slot or what items are in the inventory, but is not useful if a monster
+ + wants to drop or otherwise remove a stack of items.
+ +
+ + Date:  2018-09-05
+ +
+ + See_Also:
+ +   <a href="#get_item">get_item</a>,
+ +   <a href="#pop_stack">pop_stack</a>,
+ +   <a href="#pop_item">pop_item</a>,
+ +   <a href="#count_stack">count_stack</a>
+ +
+ + Returns:
+ +   A `Stack` from `tory.items[index]`
+ +/
+Stack get_stack( Inven tory, uint index )
+{ return tory.items[index];
+}
+
+/++
+ + Pops an item out of the given stack in an inventory
+ +
+ + This function gets an `Item` from the given equipment slot from the given
+ + inventory and removes one item from that slot.
+ +
+ + This can be used when a monster wants to drop or otherwise remove an item
+ + from their inventory, but is not appropriate if we want to get rid of an
+ + entire stack.
+ +
+ + Date:  2018-09-05
+ +
+ + See_Also:
+ +   <a href="#get_item">get_item</a>,
+ +   <a href="#get_stack">get_stack</a>,
+ +   <a href="#pop_stack">pop_stack</a>
+ +
+ + Returns:
+ +   An `Item` removed from `tory.items[index]`
+ +/
+Item pop_item( Inven tory, uint index )
+{
+  if( tory.items[index].count <= 0 )
+  { return No_item;
+  }
+
+  tory.items[index].count--;
+  return tory.items[index].i;
+}
+
+/++
+ + Pops a stack out of the given inventory
+ +
+ + This function gets a `Stack` from the given equipment slot from the given
+ + inventory and removes the stack from that slot.
+ +
+ + This can be used when a monster wants to drop or otherwise remove a stack
+ + of items from their inventory, but is not appropriate if we only want to
+ + get rid of one item.
+ +
+ + Date:  2018-09-05
+ +
+ + See_Also:
+ +   <a href="#pop_item">pop_item</a>,
+ +   <a href="#get_stack">get_stack</a>,
+ +   <a href="#get_item">get_item</a>,
+ +
+ + Returns:
+ +   An `Item` removed from `tory.items[index]`
+ +/
+Stack pop_stack( Inven tory, uint index )
+{
+  if( tory.items[index].i == No_item )
+  { return Stack( No_item, 0 );
+  }
+
+  Stack ret = tory.items[index];
+
+  tory.items[index] = Stack( No_item, 0 );
+
+  return ret;
+}
+
+/++
+ + Counts the number of items in a given stack in the given inventory
+ +
+ + Date:  2018-09-05
+ +
+ + Returns:
+ +   `tory.items[index].count`, or 0 if the `Item` in the given `Stack` is
+ +   `No_item`
+ +/
+uint count_stack( Inven tory, uint index )
+{
+  if( tory.items[index].i == No_item )
+  { return 0;
+  }
+
+  return tory.items[index].count;
+}
