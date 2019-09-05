@@ -9,4 +9,4 @@ categories:
 As part of the SwashRL project, all files in this repository are subject to
 the same license as SwashRL.  The up-to-date SwashRL license can be found on
 the SwashRL GitHub page
-[here](https://github.com/swashdev/SwashRL/blob/master/LICENSE).
+[here](https://github.com/swashdev/SwashRL/blob/master/LICENSE.TXT).
